@@ -10,3 +10,5 @@ scripts/metrics
 *.png
 __pycache__/
 *.pyc
+*.zip
+*.db
