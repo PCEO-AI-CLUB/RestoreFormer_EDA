@@ -1,4 +1,5 @@
 data/FFHQ
+data/test
 scripts/data_synthetic
 experiments/
 scripts/run_clustre.sh
