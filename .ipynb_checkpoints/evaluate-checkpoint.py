@@ -40,7 +40,7 @@ def calculate_fid(model, images1, images2):
 	mu1, sigma1 = act1.mean(axis=0), cov(act1, rowvar=False)
 	mu2, sigma2 = act2.mean(axis=0), cov(act2, rowvar=False)
 	# calculate sum squared difference between means
-	ssdiff = numpy.sum((mu1 - mu2)**2.0)
+	ssdiff = np.sum((mu1 - mu2)**2.0)
 	# calculate sqrt of product between cov
 	covmean = sqrtm(sigma1.dot(sigma2))
 	# check and correct imaginary numbers from sqrt
@@ -106,10 +106,7 @@ def calculate_ssim(img1, img2):
         raise ValueError('Wrong input image dimensions.')
 
 def np2tensor(array):
-    tensor = torch.from_numpy(array)
-    tensor *= (1/255)
-    return tensor.unsqueeze(0)
-    
+    return torch.Tensor(array[:,:,:,np.newaxis].transpose(3,2,0,1))
         
 def get_parser():
     parser = argparse.ArgumentParser(description="evaluate final results for SR with 5 metrics")
@@ -153,7 +150,11 @@ if __name__ == "__main__":
         psnr_list.append(calculate_psnr(original_image, result_image))
         ssim_list.append(calculate_ssim(original_image, result_image))
         lpips_list.append(loss_fn_vgg(np2tensor(original_image), np2tensor(result_image)))
-        fid_list.append(calculate_fid(fid_model, original_image, result_image), calculate_fid(fid_model, original_image, result_image))
+        
+        fid_original_image = preprocess_input(scale_images(original_image, (299,299,3)))
+        fid_result_image = preprocess_input(scale_images(result_image, (299,299,3)))
+        
+        fid_list.append(calculate_fid(fid_model, fid_original_image, fid_result_image))
         
     print("PSNR : {}, SSIM : {}, LPIPS : {}, FID : {}, IDD : {}".format(np.mean(np.array(psnr_list)), np.mean(np.array(ssim_list)), 
                                                                         np.mean(np.array(lpips_list)), np.mean(np.array(fid_list)), np.mean(np.array(idd_list))))
